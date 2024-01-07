@@ -1,17 +1,67 @@
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { CustomButton, Text, View } from '../../components/Themed'
 import { TextInput, View as Box, useColorScheme } from 'react-native'
 import Colors, { secondary } from '../../constants/Colors'
 import { AntDesign } from '@expo/vector-icons';
 import { Link, router } from 'expo-router';
-import { getAuth, signInAnonymously } from "firebase/auth";
+import { getAuth, getRedirectResult, signInAnonymously, signInWithCredential } from "firebase/auth";
 import { app, auth } from '../../firebase'
 import { width } from '../../constants/Dimensions';
 import { useNotification } from '../../components/contexts/Notifications';
-export default function SignUp() {
-    const color = useColorScheme() ?? 'light'
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import * as WebBrowser from "expo-web-browser";
+import { ResponseType, makeRedirectUri } from "expo-auth-session";
+import * as Google from "expo-auth-session/providers/google";
+WebBrowser.maybeCompleteAuthSession();
 
+export default function SignUp() {
+    const uri = makeRedirectUri()
+    const color = useColorScheme() ?? 'light'
+    const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+        clientId:
+            process.env.EXPO_PUBLIC_CLIENT,
+    });
+    useEffect(() => {
+
+        if (response?.type === "success") {
+            const { id_token } = response.params;
+
+            const auth = getAuth();
+            const provider = new GoogleAuthProvider();
+            // const credential = provider.credential(id_token);
+            signInWithCredential(auth, GoogleAuthProvider.credential(id_token)).then((result) => {
+                showNotification("Signed In")
+                console.log(result)
+            }).catch((error: any) => {
+                console.log(error)
+            });
+        }
+    }, [response])
+    const signInWithGoogle = () => {
+        showNotification("Signing In")
+        const provider = new GoogleAuthProvider()
+        getRedirectResult(auth)
+            .then((result: any) => {
+                // This gives you a Google Access Token. You can use it to access Google APIs.
+                const credential = GoogleAuthProvider.credentialFromResult(result);
+                const token = credential?.accessToken;
+
+                // The signed-in user info.
+                const user = result.user;
+                // IdP data available using getAdditionalUserInfo(result)
+                // ...
+            }).catch((error) => {
+                // Handle Errors here.
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                // The email of the user's account used.
+                const email = error.customData.email;
+                // The AuthCredential type that was used.
+                const credential = GoogleAuthProvider.credentialFromError(error);
+                // ...
+            });
+    }
     const { showNotification } = useNotification()
 
     const signin = () => {
@@ -25,10 +75,11 @@ export default function SignUp() {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 // ...
-                console.log(error)
+
                 showNotification("Can not sign up at the moment")
             });
     }
+    useEffect(() => { console.log(uri) }, [])
 
     return (
         <View style={{ gap: 10 }} >

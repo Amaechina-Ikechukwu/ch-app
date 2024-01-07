@@ -15,14 +15,14 @@ export default function ModalScreen() {
   const signin = () => {
     signOut(auth)
       .then((result: any) => {
-        console.log({ result })
+        ({ result })
         router.push('/authentication')
       })
       .catch((error: any) => {
         const errorCode = error.code;
         const errorMessage = error.message;
         // ...
-        console.log(error)
+
         showNotification("Signed Out")
       });
   }
