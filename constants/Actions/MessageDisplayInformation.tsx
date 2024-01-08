@@ -4,7 +4,8 @@ import { View, Text } from "../../components/Themed";
 import convertTimestampToTime from "./ConvertedTimeStamp";
 import { View as Box } from "react-native";
 import { width } from "../Dimensions";
-export default function MessageDisplayInformation({ message, sent, author }: { message: string, sent: string, author: string }) {
+import { acccent } from "../Colors";
+export default function MessageDisplayInformation({ message, sent, author, number }: { message: string, sent: string, author: string, number: number }) {
 
   useEffect(() => { }, [author])
   return (
@@ -13,8 +14,16 @@ export default function MessageDisplayInformation({ message, sent, author }: { m
         <Text style={{ fontWeight: "500" }}>{author + ": "}</Text>
         <Text>{message || "No messages yet "}</Text>
       </Box>
+      <Box style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 10 }}>
+        <Text style={{ fontWeight: "300" }}>{message && convertTimestampToTime(sent)}</Text>{number !== 0 && < Box style={{ borderRadius: 500, padding: 5, width: 25, height: 25, borderWidth: 1, borderColor: 'white', alignItems: 'center', justifyContent: 'center', backgroundColor: acccent, }}>
 
-      <Text style={{ fontWeight: "300" }}>{message && convertTimestampToTime(sent)}</Text>
-    </Box>
+          <Text style={{ fontSize: 14, fontWeight: '700', color: 'white', textAlign: 'center' }}>{number}</Text>
+        </Box>
+        }
+
+      </Box>
+
+
+    </Box >
   );
 }

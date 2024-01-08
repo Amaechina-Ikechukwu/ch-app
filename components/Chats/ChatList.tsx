@@ -10,6 +10,7 @@ import { useShallow } from 'zustand/react/shallow'
 import Imaging from '../../constants/Imaging'
 import MessageDisplayInformation from '../../constants/Actions/MessageDisplayInformation'
 import { auth } from '../../firebase'
+import { router } from 'expo-router'
 
 export default function ChatList() {
     const user = auth?.currentUser?.uid
@@ -20,12 +21,12 @@ export default function ChatList() {
     const renderItems = ({ item }: any) => {
         return (
             <>
-                {item.type == 'dm' && <TouchableOpacity style={{ width: width, }}>
+                {item.type == 'dm' && <TouchableOpacity onPress={() => router.push(`/chats/${item.lastMessage.chatid}`)} style={{ width: width, }}>
                     <Box style={{ flexDirection: 'row', width: width, gap: 10, alignItems: 'center', }}>
                         <Imaging name={item.userData.nickname} />
                         <Box style={{ gap: 5 }}>
                             <Text style={{ fontWeight: "500", fontSize: 16 }}>{item.userData.nickname}</Text>
-                            <MessageDisplayInformation author={item.lastMessage.author == user ? "You" : item.userData.nickname.split(' ')[0]} sent={item.lastMessage.sent} message={item.lastMessage.message} />
+                            <MessageDisplayInformation number={item.unread} author={item.lastMessage.author == user ? "You" : item.userData.nickname.split(' ')[0]} sent={item.lastMessage.sent} message={item.lastMessage.message} />
                         </Box>
                     </Box>
                 </TouchableOpacity>}
@@ -34,7 +35,7 @@ export default function ChatList() {
                         <Imaging name={item.groupname} />
                         <Box style={{ gap: 5 }}>
                             <Text style={{ fontWeight: "500", fontSize: 16 }}>{item.groupname}</Text>
-                            <MessageDisplayInformation author={item.lastMessage.authorData.nickname.split(" ")[0]} sent={item.lastMessage.sent} message={item.lastMessage.message} />
+                            <MessageDisplayInformation number={item.unread} author={item.lastMessage.authorData.nickname.split(" ")[0]} sent={item.lastMessage.sent} message={item.lastMessage.message} />
 
                         </Box>
                     </Box>

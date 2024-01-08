@@ -1,10 +1,10 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Link, Tabs, router } from 'expo-router';
-import { Pressable, useColorScheme } from 'react-native';
+import { Pressable, Text, View, useColorScheme } from 'react-native';
 import { useShallow } from 'zustand/react/shallow'
-import Colors from '../../constants/Colors';
+import Colors, { acccent, secondary } from '../../constants/Colors';
 import { GeneralGet } from '../../apis/Get/General';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth, db } from '../../firebase';
 import useStore from '../../constants/Store/state';
@@ -14,13 +14,14 @@ import { ref, onValue, orderByChild, child, query, equalTo, onChildAdded, get } 
  */
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof FontAwesome>['name'];
-  color: string;
+  color: string; number?: number | null
 }) {
-  return <FontAwesome size={28} style={{ marginBottom: -3 }} {...props} />;
+  return <View>{props.number && props.number !== 0 && <View style={{ borderRadius: 500, width: 25, height: 25, borderWidth: 1, borderColor: 'white', alignItems: 'center', justifyContent: 'center', position: 'absolute', zIndex: 40, backgroundColor: acccent, right: -10, top: -6 }}><Text style={{ fontSize: 14, fontWeight: '700', color: 'white', textAlign: 'center' }}>{props.number}</Text></View>}<FontAwesome size={28} style={{ marginBottom: -3 }} {...props} /></View>;
 }
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const [nouc, setNouc] = useState(null) //nouc == Number Of Unread Chats
   const [setChatList] = useStore(
     useShallow((state: any) => [state.setChatList,]),
   )
@@ -28,6 +29,11 @@ export default function TabLayout() {
     const result = await GeneralGet('profile/iscomplete', user)
 
     return result.result
+  }
+  const noucdata = async (user: string) => {
+    const { result } = await GeneralGet('chats/numofunread', user)
+
+    setNouc(result)
   }
   const chatlist = async (user: string) => {
     const result = await GeneralGet('chats/chatlist', user)
@@ -49,6 +55,7 @@ export default function TabLayout() {
             onValue(starCountRef, (snapshot) => {
               const data = snapshot.val();
               chatlist(user)
+              noucdata(user)
             });
           }
         }
@@ -72,6 +79,7 @@ export default function TabLayout() {
             onValue(starCountRef, (snapshot) => {
               const data = snapshot.val();
               chatlist(user)
+              noucdata(user)
             });
           }
         }
@@ -97,6 +105,7 @@ export default function TabLayout() {
             chatlist(user.uid)
             listenToMyMessages()
             listenToMyGroupMessages()
+            noucdata(user.uid)
           }
         } catch (error) {
           console.error('Error fetching data:', error);
@@ -112,6 +121,7 @@ export default function TabLayout() {
       unsubscribe(); // Clean up the subscription on unmount
     };
   }, []);
+  useEffect(() => { console.log(nouc) }, [nouc])
   return (
     <Tabs
       screenOptions={{
@@ -142,7 +152,7 @@ export default function TabLayout() {
         name="chats"
         options={{
           title: 'Chats',
-          tabBarIcon: ({ color }) => <TabBarIcon name="group" color={color} />,
+          tabBarIcon: ({ color }) => <TabBarIcon name="group" color={color} number={nouc} />,
 
           // headerRight: () => <TabBarIcon name="group" color={'red'} />
         }}
