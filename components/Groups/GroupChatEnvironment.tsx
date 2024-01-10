@@ -23,17 +23,17 @@ interface Chat {
     sent: number;
     // Add any other properties as per your data structure
 }
-export default function ChatEnvironment({ chatid }: { chatid: string | string[] }) {
+export default function GroupChatEnvironment({ groupid }: { groupid: string | string[] }) {
     const { showNotification } = useNotification()
     const [chats, setChats] = useState<any>(); // Chats as an array of Chat objects
     const user = auth?.currentUser?.uid;
-    const [setHighlightedChat, highlightedChat, openInput, setOpenInput, chattingWith, deleteHighlightedChat] = useStore(
-        useShallow((state: any) => [state.setHighlightedChat, state.highlightedChat, state.openInput, state.setOpenInput, state.chattingWith, state.deleteHighlightedChat]),
+    const [setHighlightedChat, highlightedChat, openInput, setOpenInput, group, deleteHighlightedChat] = useStore(
+        useShallow((state: any) => [state.setHighlightedChat, state.highlightedChat, state.openInput, state.setOpenInput, state.group, state.deleteHighlightedChat]),
     )
     const [message, setMessage] = useState('')
     const [tempMessage, setTempMessage] = useState('')
     useEffect(() => {
-        const chatsRef = ref(db, `dms/${chatid}/chats`);
+        const chatsRef = ref(db, `groups/${groupid}/chats`);
         onValue(chatsRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
@@ -43,9 +43,9 @@ export default function ChatEnvironment({ chatid }: { chatid: string | string[] 
                 setChats(reversedChats);
             }
         });
-    }, [chatid]);
+    }, [groupid]);
     const highlight = (data: any) => {
-        const newData = { dmid: chatid, ...data }
+        const newData = { dmid: groupid, ...data }
         setHighlightedChat(newData)
         setOpenInput(true)
     }
@@ -57,14 +57,14 @@ export default function ChatEnvironment({ chatid }: { chatid: string | string[] 
                 setMessage(''); // Clear the message input
 
                 const body = {
-                    friend: chattingWith.uid,
+                    groupid: group.groupId,
                     message: tempMsg,
-                    refid: Array.isArray(chatid) ? highlightedChat[chatid[0]].id || "" : highlightedChat[chatid]?.id || "",
+                    refid: Array.isArray(groupid) ? highlightedChat[groupid[0]].id || "" : highlightedChat[groupid]?.id || "",
                 };
 
-                await GeneralPost('chats/senddm', user, body); // Sending the message
+                await GeneralPost('groups/senddm', user, body); // Sending the message
 
-                deleteHighlightedChat(chatid)
+                deleteHighlightedChat(groupid)
             } catch (error) {
                 console.error('Error sending message:', error);
                 setMessage(tempMsg); // Restore the message if sending fails
@@ -83,13 +83,13 @@ export default function ChatEnvironment({ chatid }: { chatid: string | string[] 
                     data={chats} showsVerticalScrollIndicator={false} contentContainerStyle={{ gap: 10 }} inverted
                     renderItem={({ item }) => (
                         <ChatRender item={item} user={user} onSetChat={(data) => highlight(data)} chats={chats} />
-                    )} style={{ height: highlightedChat[chatid] !== undefined ? '85%' : '90%' }}
+                    )} style={{ height: highlightedChat[groupid] !== undefined ? '85%' : '90%' }}
                     keyExtractor={(item, index) => item.id}
                 />
             </KeyboardAvoidingView>
 
             <View style={{ position: 'absolute', bottom: 10 }}>
-                <ChatInput text={message} onChangeText={(text: any) => setMessage(text)} sendMessage={sendMessage} chatid={chatid} />
+                <ChatInput text={message} onChangeText={(text: any) => setMessage(text)} sendMessage={sendMessage} chatid={groupid} />
             </View>
 
         </View>

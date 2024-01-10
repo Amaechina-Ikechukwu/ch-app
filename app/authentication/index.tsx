@@ -32,9 +32,9 @@ export default function SignUp() {
             // const credential = provider.credential(id_token);
             signInWithCredential(auth, GoogleAuthProvider.credential(id_token)).then((result) => {
                 showNotification("Signed In")
-                console.log(result)
+
             }).catch((error: any) => {
-                console.log(error)
+
             });
         }
     }, [response])
@@ -79,7 +79,7 @@ export default function SignUp() {
                 showNotification("Can not sign up at the moment")
             });
     }
-    useEffect(() => { console.log(uri) }, [])
+
 
     return (
         <View style={{ gap: 10 }} >

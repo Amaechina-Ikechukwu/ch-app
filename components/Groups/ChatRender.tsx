@@ -7,6 +7,8 @@ import Colors from '../../constants/Colors';
 import { PanGestureHandler, State, TouchableOpacity } from 'react-native-gesture-handler';
 import GetFullDate from '../../constants/Actions/GetFullDate';
 import { useColorScheme } from 'react-native';
+import { GeneralPost } from '../../apis/Post/General';
+import Imaging from '../../constants/Imaging';
 
 interface DirectMessage {
     author: string,
@@ -18,7 +20,7 @@ interface DirectMessage {
 export default function ChatRender({ item, user, onSetChat, chats }: { item: DirectMessage, user: string | undefined, onSetChat: (data: DirectMessage) => void, chats: [] }) {
     const color = useColorScheme() ?? 'light'
     const pan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
-
+    const [author, setAuthor] = useState<any>()
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderMove: (evt, gestureState) => {
@@ -26,22 +28,25 @@ export default function ChatRender({ item, user, onSetChat, chats }: { item: Dir
             pan.setValue({ x: gestureState.dx, y: 0 });
         },
         onPanResponderRelease: (_, gestureState) => {
-            const threshold = width * 0.3; // Adjust to move at least 30% of the screen width
-            onSetChat(item);
+            const threshold = width * 0.1; // Adjust to move at least 30% of the screen width
+
             if (Math.abs(gestureState.dx) > threshold) {
                 // Swipe beyond the threshold
-                const newX = item.author === user ? -width * 0.8 : width * 0.8; // Adjust 0.8 as needed
-
+                const newX = item.author === user ? -width * 0.1 : width * 0.1; // Adjust 0.8 as needed
+                onSetChat(item);
                 Animated.timing(pan, {
                     toValue: { x: newX, y: 0 },
                     duration: 100, // Adjust duration as needed
                     useNativeDriver: false,
                 }).start(() => {
                     // After reaching the side, come back to the original position
+
                     Animated.spring(pan, {
                         toValue: { x: 0, y: 0 },
                         useNativeDriver: false,
-                    }).start();
+                    }).start(() => {
+                        console.log("delete")
+                    });
                 });
             } else {
                 // Return to the original position
@@ -52,15 +57,17 @@ export default function ChatRender({ item, user, onSetChat, chats }: { item: Dir
             }
         },
     });
+
     const refChats: DirectMessage | undefined = chats.find((obj: DirectMessage) => {
-        return obj.ref && obj.ref.length !== 0 && obj.id === item.ref;
+        return obj.ref && obj.ref.length !== 0 && obj.id == item.ref;
     });
 
+    const getUserProfile = async () => {
+        const { result } = await GeneralPost('profile/user', user, { user: item.author })
 
-    // useEffect(() => { console.log(refChats) }, [])
-
-
-
+        setAuthor(result)
+    }
+    useEffect(() => { getUserProfile(), console.log(item) }, [])
 
 
 
@@ -70,10 +77,19 @@ export default function ChatRender({ item, user, onSetChat, chats }: { item: Dir
     return (
         <Box style={{ alignItems: item.author == user ? 'flex-end' : 'flex-start' }} >
 
-            <Animated.View {...panResponder.panHandlers} style={[transformStyle, { maxWidth: width * 0.6 }]}>
-                {refChats !== undefined && <Box style={{ borderLeftWidth: 5, borderLeftColor: Colors[color].text, height: 40, justifyContent: 'center', paddingHorizontal: 10, borderRightWidth: 5, borderRightColor: Colors[color].text, borderRadius: 20, width: 'auto' }}>
-                    <Text>{refChats?.message}</Text>
-                </Box>}
+            <Animated.View {...panResponder.panHandlers} style={[transformStyle, { maxWidth: width * 0.6, gap: 2 }]}>
+                <Box>
+                    {refChats !== undefined && <Box style={{ borderLeftWidth: 5, borderLeftColor: Colors[color].text, height: 40, justifyContent: 'center', paddingHorizontal: 10, borderRightWidth: 5, borderRightColor: Colors[color].text, borderRadius: 20, width: 'auto' }}>
+                        <Text>{refChats?.message}</Text>
+                    </Box>}
+                </Box>
+                <TouchableOpacity style={{}}>
+                    <Box style={{ flexDirection: item.author == user ? "row-reverse" : 'row', alignItems: 'center', gap: 2 }}>
+                        <Imaging name={author?.nickname || "CH"} w={30} h={30} tx={12} />
+                        <Text>{author?.nickname}</Text>
+                    </Box>
+                </TouchableOpacity>
+
                 <LinearGradient
                     style={[{ maxWidth: width * 0.6, width: 'auto', borderRadius: 25 }]}
                     colors={item.author !== user ? ['#94a3b8', '#e2e8f0'] : ["#d4d4d8", "#e4e4e7"]}

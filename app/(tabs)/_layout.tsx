@@ -95,7 +95,7 @@ export default function TabLayout() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        console.log(user.uid)
+
         try {
           const isComplete: boolean = await data(user.uid);
 

@@ -14,14 +14,27 @@ import { router } from 'expo-router'
 
 export default function ChatList() {
     const user = auth?.currentUser?.uid
-    const [chatList] = useStore(
-        useShallow((state: any) => [state.chatList,]),
+    const [chatList, setChattingWith, setGroup] = useStore(
+        useShallow((state: any) => [state.chatList, state.setChattingWith, state.setGroup]),
     )
     useEffect(() => { }, [chatList])
+    const gotoChat = (chats: any) => {
+        router.push({ pathname: `/(chats)/${chats.lastMessage.chatid}` })
+        const user = { ...chats.userData, uid: chats.userKey }
+        setChattingWith(user)
+
+    }
+    const gotoGroups = (group: any) => {
+
+        router.push({ pathname: `/(groups)/${group.groupId}` })
+
+        setGroup(group)
+
+    }
     const renderItems = ({ item }: any) => {
         return (
             <>
-                {item.type == 'dm' && <TouchableOpacity onPress={() => router.push(`/chats/${item.lastMessage.chatid}`)} style={{ width: width, }}>
+                {item.type == 'dm' && <TouchableOpacity onPress={() => gotoChat(item)} style={{ width: width, }}>
                     <Box style={{ flexDirection: 'row', width: width, gap: 10, alignItems: 'center', }}>
                         <Imaging name={item.userData.nickname} />
                         <Box style={{ gap: 5 }}>
@@ -30,7 +43,7 @@ export default function ChatList() {
                         </Box>
                     </Box>
                 </TouchableOpacity>}
-                {item.type == 'group' && <TouchableOpacity style={{ width: width, }}>
+                {item.type == 'group' && <TouchableOpacity onPress={() => gotoGroups(item)} style={{ width: width, }}>
                     <Box style={{ flexDirection: 'row', width: width, gap: 10, alignItems: 'center', }}>
                         <Imaging name={item.groupname} />
                         <Box style={{ gap: 5 }}>

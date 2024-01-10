@@ -15,7 +15,7 @@ export default function MessageDisplayInformation({ message, sent, author, numbe
         <Text>{message || "No messages yet "}</Text>
       </Box>
       <Box style={{ flexDirection: 'row-reverse', alignItems: 'center', gap: 10 }}>
-        <Text style={{ fontWeight: "300" }}>{message && convertTimestampToTime(sent)}</Text>{number !== 0 && < Box style={{ borderRadius: 500, padding: 5, width: 25, height: 25, borderWidth: 1, borderColor: 'white', alignItems: 'center', justifyContent: 'center', backgroundColor: acccent, }}>
+        <Text style={{ fontWeight: "300" }}>{message && convertTimestampToTime(sent)}</Text>{number !== 0 && < Box style={{ borderRadius: 500, width: 25, height: 25, borderWidth: 1, borderColor: 'white', alignItems: 'center', justifyContent: 'center', backgroundColor: acccent, }}>
 
           <Text style={{ fontSize: 14, fontWeight: '700', color: 'white', textAlign: 'center' }}>{number}</Text>
         </Box>
