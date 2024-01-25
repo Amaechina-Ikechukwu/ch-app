@@ -37,6 +37,7 @@ export default function ChatEnvironment({ chatid }: { chatid: string | string[] 
         onValue(chatsRef, (snapshot) => {
             const data = snapshot.val();
             if (data) {
+                console.log(JSON.stringify(data, null, 2))
                 const newdata = Object.entries(data).map(([key, value]: [string, any]) => ({ id: key, ...value }));
                 // Reverse the order of messages to show the latest one first
                 const reversedChats = newdata.reverse();

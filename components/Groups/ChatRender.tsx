@@ -33,7 +33,7 @@ export default function ChatRender({ item, user, onSetChat, chats }: { item: Dir
             if (Math.abs(gestureState.dx) > threshold) {
                 // Swipe beyond the threshold
                 const newX = item.author === user ? -width * 0.1 : width * 0.1; // Adjust 0.8 as needed
-                onSetChat(item);
+
                 Animated.timing(pan, {
                     toValue: { x: newX, y: 0 },
                     duration: 100, // Adjust duration as needed
@@ -45,7 +45,7 @@ export default function ChatRender({ item, user, onSetChat, chats }: { item: Dir
                         toValue: { x: 0, y: 0 },
                         useNativeDriver: false,
                     }).start(() => {
-                        console.log("delete")
+                        setSomething(item);
                     });
                 });
             } else {
@@ -53,11 +53,16 @@ export default function ChatRender({ item, user, onSetChat, chats }: { item: Dir
                 Animated.spring(pan, {
                     toValue: { x: 0, y: 0 },
                     useNativeDriver: false,
-                }).start();
+                }).start(() => {
+
+                });
             }
         },
     });
-
+    const setSomething = (some: any) => {
+        onSetChat(some);
+        return
+    }
     const refChats: DirectMessage | undefined = chats.find((obj: DirectMessage) => {
         return obj.ref && obj.ref.length !== 0 && obj.id == item.ref;
     });
@@ -67,7 +72,7 @@ export default function ChatRender({ item, user, onSetChat, chats }: { item: Dir
 
         setAuthor(result)
     }
-    useEffect(() => { getUserProfile(), console.log(item) }, [])
+    useEffect(() => { getUserProfile() }, [])
 
 
 

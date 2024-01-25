@@ -11,6 +11,7 @@ import { Text } from '../components/Themed'
 export default function ChatInput({ text, onChangeText, autofocus = false, sendMessage, chatid }: { text: string | undefined, onChangeText: (text: string | undefined) => void, autofocus?: boolean, sendMessage: () => void, chatid: any }) {
     const color = useColorScheme() ?? 'light'
     const [openInput, setOpenInput, highlightedChat] = useStore(useShallow((state: any) => [state.openInput, state.setOpenInput, state.highlightedChat]),)
+    useEffect(() => { }, [highlightedChat[chatid]])
     useEffect(() => { }, [openInput])
     // useEffect(() => { console.log(JSON.stringify(highlightedChat, null, 2)) }, [highlightedChat])
     useEffect(() => {

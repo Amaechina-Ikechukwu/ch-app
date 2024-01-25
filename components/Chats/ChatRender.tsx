@@ -3,19 +3,26 @@ import React, { useEffect, useRef, useState } from 'react'
 import { Text } from '../Themed'
 import { LinearGradient } from 'expo-linear-gradient';
 import { width } from '../../constants/Dimensions';
-import Colors from '../../constants/Colors';
-import { PanGestureHandler, State, TouchableOpacity } from 'react-native-gesture-handler';
+import Colors, { acccent } from '../../constants/Colors';
+import { Ionicons } from '@expo/vector-icons';
 import GetFullDate from '../../constants/Actions/GetFullDate';
 import { useColorScheme } from 'react-native';
+import { GeneralPost } from '../../apis/Post/General';
 
 interface DirectMessage {
     author: string,
     message: string,
-    sent: number, id: string, ref: string
+    sent: number, id: string, ref: string, seenBy: boolean
+
+}
+interface ChattingWith {
+    nickname: string,
+    uid: string,
+
 
 }
 
-export default function ChatRender({ item, user, onSetChat, chats }: { item: DirectMessage, user: string | undefined, onSetChat: (data: DirectMessage) => void, chats: [] }) {
+export default function ChatRender({ item, user, onSetChat, chats, chattingWith }: { item: DirectMessage, user: string | undefined, onSetChat: (data: DirectMessage) => void, chats: [], chattingWith?: ChattingWith }) {
     const color = useColorScheme() ?? 'light'
     const pan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
 
@@ -56,8 +63,16 @@ export default function ChatRender({ item, user, onSetChat, chats }: { item: Dir
         return obj.ref && obj.ref.length !== 0 && obj.id === item.ref;
     });
 
+    const seenMessage = async () => {
 
-    // useEffect(() => { console.log(refChats) }, [])
+        if (item.author == chattingWith?.uid && item.seenBy == false) {
+            await GeneralPost('chats/seendm', user, { friend: chattingWith?.uid, chatid: item.id })
+
+        } else { null }
+
+    }
+
+
 
 
 
@@ -83,8 +98,12 @@ export default function ChatRender({ item, user, onSetChat, chats }: { item: Dir
                 >
                     <Box style={{ padding: 15, gap: 5 }}>
                         <Text style={{ color: Colors.light.text, fontSize: 14, fontWeight: '400' }}>{item.message}</Text>
-                        <Box style={{ alignItems: 'flex-end' }}>
+
+                        <Box style={{ alignItems: 'center', flexDirection: 'row', gap: 20 }}>
                             <Text style={{ color: Colors.light.text, fontSize: 10 }}>{GetFullDate(item.sent)}</Text>
+                            <Box style={{ alignItems: 'flex-end' }}>
+                                {item.author == user ? item.seenBy ? <Ionicons name="checkmark-done-circle" size={12} color={acccent} /> : <Ionicons name="checkmark-done-circle-outline" size={12} color={"black"} /> : null}
+                            </Box>
                         </Box>
                     </Box>
                 </LinearGradient>
