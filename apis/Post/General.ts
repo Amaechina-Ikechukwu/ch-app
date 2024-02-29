@@ -19,7 +19,7 @@ export const GeneralPost = async (
       },
       body: JSON.stringify(requestBody),
     });
-
+    console.log({ response }, "from POST");
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }

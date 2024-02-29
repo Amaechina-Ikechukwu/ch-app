@@ -16,7 +16,7 @@ export const GeneralGet = async (
         // Add any other headers if needed
       },
     });
-
+    console.log({ response }, "from GET");
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
