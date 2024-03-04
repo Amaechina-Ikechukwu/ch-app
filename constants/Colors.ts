@@ -11,6 +11,7 @@ export default {
     tabIconSelected: "#FFD700",
     acccent: "#64EB4E",
     secondary: "#FFD700",
+    highlighted: "#9ca3af",
   },
   dark: {
     text: "#e2e8f0",
@@ -20,5 +21,6 @@ export default {
     tabIconSelected: "#FFD700",
     acccent: "#64EB4E",
     secondary: "#FFD700",
+    highlighted: "#4b5563",
   },
 };

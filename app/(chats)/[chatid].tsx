@@ -28,15 +28,12 @@ const HeaderComp = ({ item, props }: { item: any; props: any }) => {
   );
 };
 export default function ChatID() {
-  const { showNotification } = useNotification();
   const { chatid } = useLocalSearchParams();
   const [chattingWith] = useStore(
     useShallow((state: any) => [state.chattingWith])
   );
   const colorScheme = useColorScheme();
-  useEffect(() => {
-    console.log({ chatid });
-  }, []);
+  useEffect(() => {}, []);
   return (
     <View style={{ paddingHorizontal: 20 }}>
       <Stack.Screen

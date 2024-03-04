@@ -14,6 +14,8 @@ import { useColorScheme } from "react-native";
 import { GeneralPost } from "../../apis/Post/General";
 import Imaging from "../../constants/Imaging";
 import { Link, router } from "expo-router";
+import useStore from "../../constants/Store/state";
+import { useShallow } from "zustand/react/shallow";
 
 interface DirectMessage {
   author: string;
@@ -28,15 +30,18 @@ export default function ChatRender({
   user,
   onSetChat,
   chats,
+  groupid,
 }: {
   item: DirectMessage;
-  user: string | undefined;
+  user: any;
   onSetChat: (data: DirectMessage) => void;
   chats: [];
+  groupid: string;
 }) {
   const color = useColorScheme() ?? "light";
   const pan = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
   const [author, setAuthor] = useState<any>();
+
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onPanResponderMove: (evt, gestureState) => {
@@ -77,7 +82,9 @@ export default function ChatRender({
     onSetChat(some);
     return;
   };
-
+  const [setGroupUsers, groupUsers] = useStore(
+    useShallow((state: any) => [state.setGroupUsers, state.groupUsers])
+  );
   const refChats: DirectMessage | undefined = chats.find(
     (obj: DirectMessage) => {
       return obj.ref && obj.ref.length !== 0 && obj.id == item.ref;
@@ -90,10 +97,19 @@ export default function ChatRender({
     });
 
     setAuthor(result);
+    setGroupUsers({
+      dmid: groupid,
+      user: {
+        [user]: author,
+      },
+    });
   };
 
   useEffect(() => {
     getUserProfile();
+  }, []);
+  useEffect(() => {
+    console.log(groupUsers);
   }, []);
 
   const transformStyle = {
@@ -107,44 +123,26 @@ export default function ChatRender({
         {...panResponder.panHandlers}
         style={[transformStyle, { maxWidth: width * 0.6, gap: 2 }]}
       >
-        <Box>
+        <Box style={{ position: "relative", top: 10, zIndex: 5 }}>
           {refChats !== undefined && (
             <Box
               style={{
-                borderLeftWidth: 5,
-                borderLeftColor: Colors[color].text,
+                // borderLeftWidth: 5,
+                // borderLeftColor: Colors[color].text,
                 height: 40,
                 justifyContent: "center",
                 paddingHorizontal: 10,
-                borderRightWidth: 5,
-                borderRightColor: Colors[color].text,
-                borderRadius: 20,
+                // borderRightWidth: 5,
+                // borderRightColor: Colors[color].text,
+                borderRadius: 18,
                 width: "auto",
-                backgroundColor: Colors[color].tint,
+                backgroundColor: Colors[color].highlighted,
               }}
             >
               <Text>{refChats?.message}</Text>
             </Box>
           )}
         </Box>
-        <Link
-          href={{
-            pathname: "/profile/[user]",
-            params: { user: item?.author },
-          }}
-        >
-          <Box
-            style={{
-              flexDirection: item.author == user ? "row-reverse" : "row",
-              alignItems: "center",
-              gap: 2,
-            }}
-          >
-            <Imaging name={author?.nickname || "CH"} w={30} h={30} tx={12} />
-            <Text>{author?.nickname}</Text>
-          </Box>
-        </Link>
-
         <LinearGradient
           style={[{ maxWidth: width * 0.6, width: "auto", borderRadius: 25 }]}
           colors={
@@ -173,6 +171,23 @@ export default function ChatRender({
             </Box>
           </Box>
         </LinearGradient>
+        <Link
+          href={{
+            pathname: "/profile/[user]",
+            params: { user: item?.author },
+          }}
+        >
+          <Box
+            style={{
+              flexDirection: item.author == user ? "row-reverse" : "row",
+              alignItems: "center",
+              gap: 2,
+            }}
+          >
+            <Imaging name={author?.nickname || "CH"} w={30} h={30} tx={12} />
+            <Text>{author?.nickname}</Text>
+          </Box>
+        </Link>
       </Animated.View>
     </Box>
   );
